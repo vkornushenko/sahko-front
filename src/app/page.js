@@ -1,6 +1,7 @@
 // import Image from "next/image";
 // import styles from "./page.module.css";
 
+import Chart from '@/components/Chart';
 import { fetchLatestPriceData, filterPricesByDate } from './actions';
 
 export default async function Home() {
@@ -11,27 +12,19 @@ export default async function Home() {
   const end = new Date();
   end.setDate(start.getDate() + 1);
 
+  // filter prices by start/end date
   const filteredPrices = await filterPricesByDate(start, end, prices);
+  // hardcoded ASC (need to be improved in case of the order from the API endpoint changed)
+  filteredPrices.reverse();
 
-  function formatDate(priceData) {
-    const day = priceData.startDate.getDate();
-    const month = priceData.startDate.getMonth() + 1;
-    const hours = priceData.startDate.getHours().toString().padStart(2, '0');
-    const minutes = priceData.startDate.getMinutes().toString().padStart(2, '0');
-    const endMin = priceData.endDate.getMinutes().toString().padStart(2, '0');
-    return `${day}.${month} ${hours}:${minutes}...${hours}:${endMin}`;
-  }
+  // console.log(filteredPrices)
+
+  
 
   return (
     <main>
       <h1>Porssi Sähkö Hinta (today)</h1>
-      <ul>
-        {filteredPrices.reverse().map((price) => (
-          <li key={price.startDate}>
-            {price.price} - {formatDate(price)}
-          </li>
-        ))}
-      </ul>
+      <Chart filteredPrices={filteredPrices} />
     </main>
   );
 }

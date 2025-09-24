@@ -1,20 +1,32 @@
-.graph{
-    /* height: 300px; */
-    width: 100%;
-    background-color: #191919;
+.nav {
+  display: flex;
+  gap: 6px;
+}
+.nav div {
+  opacity: 0.8;
+  padding: 4px 8px;
+}
+.nav div.active {
+  opacity: 1;
+  font-weight: bold;
+  background-color: #191919;
+}
+.nav div:hover {
+  opacity: 1;
+  cursor: pointer;
 }
 
-.graph ul{
-    display: flex;
-/* flex-wrap: wrap; */
-align-items: flex-end;
-justify-content: space-between;
-margin: 0;
-
+.graph {
+  /* height: 300px; */
+  width: 100%;
+  background-color: #191919;
 }
 
-.graph ul li{
-    /* border: 1px solid salmon; */
-background-color: cadetblue;
-border-radius: 2px;
+.graph ul {
+  display: flex;
+  /* flex-wrap: wrap; */
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 0;
 }
+

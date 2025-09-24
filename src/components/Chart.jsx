@@ -1,14 +1,21 @@
-'use client';
+"use client";
 
-import { React, useRef, useState, useEffect } from 'react';
-import classes from '@/components/Chart.module.css';
+import { React, useRef, useState, useEffect } from "react";
+import classes from "@/components/Chart.module.css";
+import { filterPricesByDate, formatDate } from "@/lib/dateUtils";
+import Candle from "./Candle";
 
-export default function Chart({ filteredPrices }) {
-  //   console.log(filteredPrices);
+export default function Chart({ fetchedPrices }) {
+  const [filterMode, setFilterMode] = useState("nowRange12h");
+  const modeHandler = function (mode) {
+    setFilterMode(mode);
+  };
+  // filter mode options: 'today', 'nowRange12h', 'next24h'
+  const filteredPrices = filterPricesByDate(fetchedPrices, filterMode);
 
+  // responsive chart logic
   const divRef = useRef(null);
   const [width, setWidth] = useState(0);
-
   useEffect(() => {
     if (divRef.current) {
       setWidth(divRef.current.offsetWidth); // get current width
@@ -19,50 +26,66 @@ export default function Chart({ filteredPrices }) {
       if (divRef.current) setWidth(divRef.current.offsetWidth);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  function formatDate(priceData) {
-    const day = priceData.startDate.getDate();
-    const month = priceData.startDate.getMonth() + 1;
-    const hours = priceData.startDate.getHours().toString().padStart(2, '0');
-    const minutes = priceData.startDate
-      .getMinutes()
-      .toString()
-      .padStart(2, '0');
-    const endMin = priceData.endDate.getMinutes().toString().padStart(2, '0');
-    return `${day}.${month} ${hours}:${minutes}...${hours}:${endMin}`;
-  }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [filterMode]);
 
   // getting highest price
   const pricesList = filteredPrices.map((priceList) => priceList.price);
   const roundedHighestPrice = Math.ceil(Math.max(...pricesList));
 
-  const k = 300 / roundedHighestPrice;
+  const now = new Date();
 
   return (
     <>
-      <div className={classes.graph} ref={divRef}>
-        <ul>
-          {filteredPrices.map((price, index) => (
-            <li
-              key={index}
-              style={{
-                height: price.price * k,
-                width:
-                  (width - 40 - (filteredPrices.length - 1) * 3) /
-                  filteredPrices.length,
-              }}
-              title={price.price}
-            ></li>
-          ))}
-        </ul>
+      <h1>Porssi Sähkö Hinta</h1>
+      <div>
+        <nav className={classes.nav}>
+          <div
+            onClick={() => modeHandler("today")}
+            className={filterMode === "today" ? classes.active : ""}
+          >
+            today
+          </div>
+          <div
+            onClick={() => modeHandler("nowRange12h")}
+            className={filterMode === "nowRange12h" ? classes.active : ""}
+            title={filterMode}
+          >
+            now±12h
+          </div>
+          <div
+            onClick={() => modeHandler("next24h")}
+            className={filterMode === "next24h" ? classes.active : ""}
+          >
+            next24h
+          </div>
+        </nav>
+        <div className={classes.graph} ref={divRef}>
+          {filteredPrices.length > 0 ? (
+            <ul>
+              {filteredPrices.map((price, index) => (
+                <Candle
+                  key={index}
+                  price={price}
+                  highestPrice={roundedHighestPrice}
+                  candleQty={filteredPrices.length}
+                  chartWidth={width}
+                  now={now}
+                  candleStartDate={price.startDate}
+                  candleEndDate={price.endDate}
+                />
+              ))}
+            </ul>
+          ) : (
+            <p>No price data available for this time range.</p>
+          )}
+        </div>
       </div>
 
       <ul>
         {filteredPrices.map((price, index) => (
-          <li key={index}>
+          <li key={index} style={{opacity: 0.7}}>
             {price.price} - {formatDate(price)}
           </li>
         ))}

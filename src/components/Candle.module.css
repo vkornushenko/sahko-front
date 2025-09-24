@@ -1,0 +1,9 @@
+.candle {
+  background-color: #daa520;
+  border-radius: 2px;
+  
+}
+
+.candle:hover, .currentCandle {
+  background-color: #ff4500;
+}

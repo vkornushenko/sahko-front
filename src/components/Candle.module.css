@@ -1,9 +1,21 @@
 .candle {
   background-color: #daa520;
-  border-radius: 2px;
-  
+  border-radius: 1px 1px 0 0;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: row;
+  justify-content: center;
 }
 
-.candle:hover, .currentCandle {
+.candle:hover,
+.currentCandle {
   background-color: #ff4500;
+}
+.candleHour {
+  position: relative;
+  top: 15px;
+  /* left: -8px; */
+  font-size: 8px;
+
+  /* border-left: 1px dotted grey; */
 }

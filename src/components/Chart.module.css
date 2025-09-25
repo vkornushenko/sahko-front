@@ -20,6 +20,7 @@
   /* height: 300px; */
   width: 100%;
   background-color: #191919;
+  padding: 20px 0;
 }
 
 .graph ul {
@@ -29,4 +30,3 @@
   justify-content: space-between;
   margin: 0;
 }
-

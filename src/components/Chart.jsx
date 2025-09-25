@@ -6,6 +6,8 @@ import { filterPricesByDate, formatDate } from "@/lib/dateUtils";
 import Candle from "./Candle";
 
 export default function Chart({ fetchedPrices }) {
+  const [tick, setTick] = useState(0); // just to force re-render
+
   const [filterMode, setFilterMode] = useState("nowRange12h");
   const modeHandler = function (mode) {
     setFilterMode(mode);
@@ -19,16 +21,39 @@ export default function Chart({ fetchedPrices }) {
   useEffect(() => {
     if (divRef.current) {
       setWidth(divRef.current.offsetWidth); // get current width
+      console.log('useEffect is running');
     }
 
-    // Optional: update width on window resize
+    // update width on window resize
     const handleResize = () => {
       if (divRef.current) setWidth(divRef.current.offsetWidth);
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [filterMode]);
+  }, []);
+
+    // efficient rerender at exact quarter-hour marks
+  useEffect(() => {
+    const scheduleNextQuarter = () => {
+      const now = new Date();
+      const minutes = now.getMinutes();
+      const nextQuarter = Math.ceil(minutes / 15) * 15; // 15, 30, 45, 60
+      const next = new Date(now);
+      next.setMinutes(nextQuarter, 0, 0); // set to next quarter-hour
+
+      const delay = next - now; // ms until next quarter
+      const timer = setTimeout(() => {
+        setTick((t) => t + 1); // trigger rerender
+        scheduleNextQuarter(); // schedule the following one
+      }, delay);
+
+      return timer;
+    };
+
+    const timer = scheduleNextQuarter();
+    return () => clearTimeout(timer);
+  }, []);
 
   // getting highest price
   const pricesList = filteredPrices.map((priceList) => priceList.price);
@@ -38,7 +63,7 @@ export default function Chart({ fetchedPrices }) {
 
   return (
     <>
-      <h1>Porssi Sähkö Hinta</h1>
+      <h1>Pörssisähkö Hinta</h1>
       <div>
         <nav className={classes.nav}>
           <div
@@ -67,6 +92,7 @@ export default function Chart({ fetchedPrices }) {
               {filteredPrices.map((price, index) => (
                 <Candle
                   key={index}
+                  index={index}
                   price={price}
                   highestPrice={roundedHighestPrice}
                   candleQty={filteredPrices.length}

@@ -1,94 +1,136 @@
 "use client";
 
-import { React, useRef, useState, useEffect } from "react";
+import { React, useRef, useState, useEffect, use } from "react";
 import classes from "@/components/Chart.module.css";
 import { filterPricesByDate, formatDate } from "@/lib/dateUtils";
 import Candle from "./Candle";
 
 export default function Chart({ fetchedPrices }) {
-  const [tick, setTick] = useState(0); // just to force re-render
-
+  const [refresh, setRefresh] = useState(false);
   const [filterMode, setFilterMode] = useState("nowRange12h");
-  const modeHandler = function (mode) {
-    setFilterMode(mode);
-  };
-  // filter mode options: 'today', 'nowRange12h', 'next24h'
-  const filteredPrices = filterPricesByDate(fetchedPrices, filterMode);
-
-  // responsive chart logic
-  const divRef = useRef(null);
   const [width, setWidth] = useState(0);
-  useEffect(() => {
-    if (divRef.current) {
-      setWidth(divRef.current.offsetWidth); // get current width
-      console.log('useEffect is running');
-    }
+  // ref for chart div
+  const divRef = useRef(null);
 
-    // update width on window resize
+  // filter mode handler
+  const modeHandler = (mode) => setFilterMode(mode);
+
+  // refresh effect
+  useEffect(() => {
+    const refreshInterval = 15; // in min
+    const now = new Date();
+    // calculate delay to next interval + 1 min
+    let delay =
+      (Math.ceil(now.getMinutes() / refreshInterval) * refreshInterval +
+        1 -
+        now.getMinutes()) *
+      60 *
+      1000;
+    console.log("calculated delay: " + delay + " ms");
+    delay === 0 ? (delay = refreshInterval * 60 * 1000) : delay;
+    console.log("delay");
+    console.log(delay / 60 / 1000 + " min (" + delay + " ms)");
+
+    const timer = setTimeout(() => {
+      setRefresh((prev) => !prev);
+      console.log(`Delayed for ${delay / 60 / 1000} min.`);
+      console.log("timeout function runned at:");
+      const nownow = new Date();
+      console.log(
+        nownow.getMinutes() +
+          ":" +
+          nownow.getSeconds() +
+          "." +
+          nownow.getMilliseconds() +
+          "mm:ss.ms"
+      );
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [refresh]);
+
+  // responsive chart effect
+  useEffect(() => {
     const handleResize = () => {
       if (divRef.current) setWidth(divRef.current.offsetWidth);
     };
-
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [width]);
 
-    // efficient rerender at exact quarter-hour marks
-  useEffect(() => {
-    const scheduleNextQuarter = () => {
-      const now = new Date();
-      const minutes = now.getMinutes();
-      const nextQuarter = Math.ceil(minutes / 15) * 15; // 15, 30, 45, 60
-      const next = new Date(now);
-      next.setMinutes(nextQuarter, 0, 0); // set to next quarter-hour
+  // calculate filtered prices and max
+  const filteredPrices = filterPricesByDate(fetchedPrices, filterMode);
+  const pricesList = filteredPrices.map((p) => p.price);
+  const roundedHighestPrice = Math.ceil(Math.max(...pricesList, 0));
 
-      const delay = next - now; // ms until next quarter
-      const timer = setTimeout(() => {
-        setTick((t) => t + 1); // trigger rerender
-        scheduleNextQuarter(); // schedule the following one
-      }, delay);
+  // nice max for y-axis
+  const getNiceMax = (value) => {
+    if (value <= 0) return 1;
+    const exp = Math.pow(10, Math.floor(Math.log10(value)));
+    const fraction = value / exp;
+    const niceSteps = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    const niceFraction = niceSteps.find((s) => fraction <= s) || 10;
+    return niceFraction * exp;
+  };
 
-      return timer;
-    };
+  const niceMax = getNiceMax(roundedHighestPrice);
 
-    const timer = scheduleNextQuarter();
-    return () => clearTimeout(timer);
-  }, []);
+  // y-axis ticks
+  function getYAxisTicks(niceMax) {
+    let stepQty;
 
-  // getting highest price
-  const pricesList = filteredPrices.map((priceList) => priceList.price);
-  const roundedHighestPrice = Math.ceil(Math.max(...pricesList));
+    // decide step count based on divisibility
+    if (niceMax % 3 === 0) stepQty = 3;
+    else if (niceMax % 4 === 0) stepQty = 4;
+    else stepQty = 5; // fallback
 
-  const now = new Date();
+    const step = niceMax / stepQty;
+    const ticks = [];
+
+    for (let i = 1; i <= stepQty; i++) {
+      ticks.push(Math.round(i * step * 100) / 100); // round to 2 decimals
+    }
+
+    return ticks;
+  }
+
+  const values = getYAxisTicks(niceMax);
 
   return (
     <>
-      <h1>Pörssisähkö Hinta</h1>
-      <div>
-        <nav className={classes.nav}>
-          <div
-            onClick={() => modeHandler("today")}
-            className={filterMode === "today" ? classes.active : ""}
-          >
-            today
-          </div>
-          <div
-            onClick={() => modeHandler("nowRange12h")}
-            className={filterMode === "nowRange12h" ? classes.active : ""}
-            title={filterMode}
-          >
-            now±12h
-          </div>
-          <div
-            onClick={() => modeHandler("next24h")}
-            className={filterMode === "next24h" ? classes.active : ""}
-          >
-            next24h
-          </div>
-        </nav>
-        <div className={classes.graph} ref={divRef}>
+      <h1>Pörssisähkö Hinta ({refresh ? "true" : "false"})</h1>
+      <nav className={classes.nav}>
+        <div
+          onClick={() => modeHandler("today")}
+          className={filterMode === "today" ? classes.active : ""}
+        >
+          today
+        </div>
+        <div
+          onClick={() => modeHandler("nowRange12h")}
+          className={filterMode === "nowRange12h" ? classes.active : ""}
+        >
+          now±12h
+        </div>
+        <div
+          onClick={() => modeHandler("next24h")}
+          className={filterMode === "next24h" ? classes.active : ""}
+        >
+          next24h
+        </div>
+      </nav>
+
+      <div className={classes.graph} ref={divRef}>
+        <div className={classes.y_axis_candle_container}>
+          <ul className={classes.y_axis}>
+            {values.map((value, i) => (
+              <li key={i}>{value}</li>
+            ))}
+          </ul>
+
           {filteredPrices.length > 0 ? (
-            <ul>
+            <ul className={classes.data_series}>
               {filteredPrices.map((price, index) => (
                 <Candle
                   key={index}
@@ -97,7 +139,6 @@ export default function Chart({ fetchedPrices }) {
                   highestPrice={roundedHighestPrice}
                   candleQty={filteredPrices.length}
                   chartWidth={width}
-                  now={now}
                   candleStartDate={price.startDate}
                   candleEndDate={price.endDate}
                 />
@@ -111,7 +152,7 @@ export default function Chart({ fetchedPrices }) {
 
       <ul>
         {filteredPrices.map((price, index) => (
-          <li key={index} style={{opacity: 0.7}}>
+          <li key={index} style={{ opacity: 0.7 }}>
             {price.price} - {formatDate(price)}
           </li>
         ))}

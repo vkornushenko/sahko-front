@@ -7,10 +7,11 @@ export default function Candle({
   highestPrice,
   candleQty,
   chartWidth,
-  now,
   candleStartDate,
   candleEndDate,
 }) {
+  const now = new Date();
+
   const isPast = candleEndDate < now;
   const isNow = candleStartDate <= now && candleEndDate > now;
   const k = 200 / highestPrice;
@@ -28,11 +29,11 @@ export default function Candle({
           width: candleWidth,
         }}
         className={`${classes.candle} ${isNow ? classes.currentCandle : ""}`}
-        title={price.price + ' snt/kWh' + decodeURI("%0A") + candleStartDate}
+        title={price.price + " snt/kWh" + decodeURI("%0A") + candleStartDate}
       >
-        {(candleStartDate.getMinutes() == 0) && (
-            <p className={classes.candleHour}>{candleStartDate.getHours()}</p>
-          )}
+        {candleStartDate.getMinutes() == 0 && (
+          <p className={classes.candleHour}>{candleStartDate.getHours()}</p>
+        )}
       </li>
     </>
   );

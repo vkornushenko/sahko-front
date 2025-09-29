@@ -96,57 +96,62 @@ export default function Chart({ fetchedPrices }) {
   }
 
   const values = getYAxisTicks(niceMax);
+  values.reverse();
 
   return (
     <>
       <h1>Pörssisähkö Hinta ({refresh ? "true" : "false"})</h1>
-      <nav className={classes.nav}>
-        <div
-          onClick={() => modeHandler("today")}
-          className={filterMode === "today" ? classes.active : ""}
-        >
-          today
-        </div>
-        <div
-          onClick={() => modeHandler("nowRange12h")}
-          className={filterMode === "nowRange12h" ? classes.active : ""}
-        >
-          now±12h
-        </div>
-        <div
-          onClick={() => modeHandler("next24h")}
-          className={filterMode === "next24h" ? classes.active : ""}
-        >
-          next24h
-        </div>
-      </nav>
-
-      <div className={classes.graph} ref={divRef}>
-        <div className={classes.y_axis_candle_container}>
-          <ul className={classes.y_axis}>
-            {values.map((value, i) => (
-              <li key={i}>{value}</li>
-            ))}
-          </ul>
-
-          {filteredPrices.length > 0 ? (
-            <ul className={classes.data_series}>
-              {filteredPrices.map((price, index) => (
-                <Candle
-                  key={index}
-                  index={index}
-                  price={price}
-                  highestPrice={roundedHighestPrice}
-                  candleQty={filteredPrices.length}
-                  chartWidth={width}
-                  candleStartDate={price.startDate}
-                  candleEndDate={price.endDate}
-                />
+      <div>
+        <nav className={classes.nav}>
+          <div
+            onClick={() => modeHandler("today")}
+            className={filterMode === "today" ? classes.active : ""}
+          >
+            today
+          </div>
+          <div
+            onClick={() => modeHandler("nowRange12h")}
+            className={filterMode === "nowRange12h" ? classes.active : ""}
+          >
+            now±12h
+          </div>
+          <div
+            onClick={() => modeHandler("next24h")}
+            className={filterMode === "next24h" ? classes.active : ""}
+          >
+            next24h
+          </div>
+        </nav>
+        <div className={classes.graph} ref={divRef}>
+          <div className={classes.y_axis_and_candle_container}>
+            <ul className={classes.y_axis} style={{ width: width, height: values[0]*150/roundedHighestPrice }}>
+              {values.map((value, i) => (
+                <li key={i}>
+                  <p>{value}</p>
+                </li>
               ))}
+              <li><p>0</p></li>
             </ul>
-          ) : (
-            <p>No price data available for this time range.</p>
-          )}
+
+            {filteredPrices.length > 0 ? (
+              <ul className={classes.data_series}>
+                {filteredPrices.map((price, index) => (
+                  <Candle
+                    key={index}
+                    index={index}
+                    price={price}
+                    highestPrice={roundedHighestPrice}
+                    candleQty={filteredPrices.length}
+                    chartWidth={width}
+                    candleStartDate={price.startDate}
+                    candleEndDate={price.endDate}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p>No price data available for this time range.</p>
+            )}
+          </div>
         </div>
       </div>
 

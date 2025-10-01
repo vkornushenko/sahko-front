@@ -7,6 +7,7 @@ export default function Candle({
   highestPrice,
   candleQty,
   chartWidth,
+  chartHeight,
   candleStartDate,
   candleEndDate,
 }) {
@@ -14,7 +15,7 @@ export default function Candle({
 
   const isPast = candleEndDate < now;
   const isNow = candleStartDate <= now && candleEndDate > now;
-  const k = 150 / highestPrice;
+  const k = chartHeight / highestPrice;
   const candleWidth = Math.round(
     (chartWidth - 40 - (candleQty - 1) * 3) / candleQty
   );

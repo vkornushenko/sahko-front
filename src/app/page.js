@@ -5,7 +5,7 @@ export default async function Home() {
   const { prices } = await fetchLatestPriceData();
   // hardcoded approach (later should add ASC/DESC filter)
   prices.reverse();
-  console.log(prices)
+  // console.log(prices)
 
   // prices[164].price = 9; // temp hack to see current candle
   // prices[165].price = 89;
@@ -14,9 +14,11 @@ export default async function Home() {
   // console.log(prices)
 
   // console.log(prices[0].startDate)
-  async function fetchFingridData() {
+  async function fetchFingridData(prices) {
+    prices.reverse();
+    console.log(prices[0].startDate);
     const datasetId = 245;
-    const startTime = '2025-09-27T22:00:00.000Z';
+    const startTime = prices[0].startDate;
     const pageSize = 192;
     const sortOrder = 'asc';
     try {
@@ -42,9 +44,24 @@ export default async function Home() {
 
   // const fingridData = await fetchFingridData();
 
+  const pricesFromOpenAPI = await fetchLatestPriceData();
+  const dataFromFinGrid = await fetchFingridData(pricesFromOpenAPI.prices);
+
+  const mappedFinGridData = await dataFromFinGrid.data.map((item) => ({
+    price: item.value/9026, // harvested wind in % from total production
+    startDate: item.startTime,
+    endDate: item.endTime,
+  }));
+  // console.log(dataFromFinGrid)
+
+
+  console.log(prices[0])
+  console.log(mappedFinGridData[0])
+
   return (
     <main>
-      <Chart fetchedPrices={prices} />
+      <Chart fetchedPrices={prices} chartHeight={200}/>
+      <Chart fetchedPrices={mappedFinGridData} chartHeight={200}/>
     </main>
   );
 }

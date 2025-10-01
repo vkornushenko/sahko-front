@@ -5,7 +5,7 @@ import classes from "@/components/Chart.module.css";
 import { filterPricesByDate, formatDate } from "@/lib/dateUtils";
 import Candle from "./Candle";
 
-export default function Chart({ fetchedPrices }) {
+export default function Chart({ fetchedPrices, chartHeight }) {
   const [refresh, setRefresh] = useState(false);
   const [filterMode, setFilterMode] = useState("nowRange12h");
   const [width, setWidth] = useState(0);
@@ -124,7 +124,7 @@ export default function Chart({ fetchedPrices }) {
         </nav>
         <div className={classes.graph} ref={divRef}>
           <div className={classes.y_axis_and_candle_container}>
-            <ul className={classes.y_axis} style={{ width: width, height: values[0]*150/roundedHighestPrice }}>
+            <ul className={classes.y_axis} style={{ width: width, height: chartHeight * values[0] / values[0] }}>
               {values.map((value, i) => (
                 <li key={i}>
                   <p>{value}</p>
@@ -143,6 +143,7 @@ export default function Chart({ fetchedPrices }) {
                     highestPrice={roundedHighestPrice}
                     candleQty={filteredPrices.length}
                     chartWidth={width}
+                    chartHeight={chartHeight}
                     candleStartDate={price.startDate}
                     candleEndDate={price.endDate}
                   />
@@ -155,13 +156,13 @@ export default function Chart({ fetchedPrices }) {
         </div>
       </div>
 
-      <ul>
+      {/* <ul>
         {filteredPrices.map((price, index) => (
           <li key={index} style={{ opacity: 0.7 }}>
             {price.price} - {formatDate(price)}
           </li>
         ))}
-      </ul>
+      </ul> */}
     </>
   );
 }

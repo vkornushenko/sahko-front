@@ -1,11 +1,17 @@
 "use client";
 
 import { React, useRef, useState, useEffect, use } from "react";
-import classes from "@/components/Chart.module.css";
+import classes from "@/components/ChartSketch.module.css";
 import { filterPricesByDate, formatDate } from "@/lib/dateUtils";
 import Candle from "./Candle";
 
-export default function Chart({ fetchedPrices, chartHeight }) {
+// type ChartData = {
+//   price: number;
+//   startDate: Date;
+//   endDate: Date;
+// }
+
+export default function ChartSketch({ fetchedPrices, chartHeight }) {
   const [refresh, setRefresh] = useState(false);
   const [filterMode, setFilterMode] = useState("nowRange12h");
   const [width, setWidth] = useState(0);

@@ -1,4 +1,4 @@
-import Chart from "@/components/Chart";
+import ChartSketch from "@/components/ChartSketch";
 import { fetchLatestPriceData } from "@/lib/actions";
 
 export default async function Home() {
@@ -60,8 +60,8 @@ export default async function Home() {
 
   return (
     <main>
-      <Chart fetchedPrices={prices} chartHeight={200}/>
-      <Chart fetchedPrices={mappedFinGridData} chartHeight={200}/>
+      <ChartSketch fetchedPrices={prices} chartHeight={200}/>
+      <ChartSketch fetchedPrices={mappedFinGridData} chartHeight={200}/>
     </main>
   );
 }

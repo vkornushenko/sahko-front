@@ -1,5 +1,6 @@
 .candle {
-  background-color: #daa520;
+  /* background: linear-gradient(90deg, #daa520 red); */
+  background: linear-gradient(0deg, #daa52076, #daa520);
   border-radius: 1px 1px 0 0;
   display: flex;
   align-items: flex-end;
@@ -9,7 +10,7 @@
 
 .candle:hover,
 .currentCandle {
-  background-color: #ff4500;
+  background: linear-gradient(0deg, #da20ce76, #da3320);
 }
 .candleHour {
   position: relative;

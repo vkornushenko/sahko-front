@@ -55,3 +55,10 @@ export function formatDate(priceData) {
     const endMin = priceData.endDate.getMinutes().toString().padStart(2, "0");
     return `${day}.${month} ${hours}:${minutes}...${hours}:${endMin}`;
   }
+
+  export function filterDataByDate(data, start){
+    // TODO if !end => end=now+5days
+    // console.log(data[0].end);
+    const filteredData = data.filter((item) => item.end >= start);
+    return filteredData;
+  }

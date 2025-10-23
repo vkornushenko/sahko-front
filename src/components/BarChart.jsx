@@ -1,0 +1,207 @@
+import React from "react";
+import classes from "@/components/BarChart.module.css";
+
+export default function BarChart() {
+  return (
+    <div className={classes.barChartContainer}>
+      <h1>Bar Chart Title</h1>
+      <h2>Bar Chart Subtitle</h2>
+
+      <nav>yesterday | today | tomorrow</nav>
+
+      <div className={classes.barChart}>
+        <div className={classes.yAxis}>
+          <ul>
+            <li><p>0</p></li>
+            {/* y axis label values */}
+            <li>
+              <p>1</p>
+            </li>
+            <li>
+              <p>2</p>
+            </li>
+            <li>
+              <p>3</p>
+            </li>
+          </ul>
+        </div>
+        <div className={classes.chart}>
+          <div className={classes.barContainer}>
+            <ul>
+              <li><p>7</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+              <li><p>9</p></li>
+              <li><p>11</p></li>
+              <li><p>13</p></li>
+              <li><p>15</p></li>
+              <li><p>17</p></li>
+              <li><p>19</p></li>
+              <li><p>21</p></li>
+              <li><p>23</p></li>
+            </ul>
+          </div>
+          <div className={classes.chartLinesContainer}>
+            <ul>
+              {/* y axis label values qty */}
+              <li></li>
+              <li></li>
+              <li></li>
+            </ul>
+          </div>
+        </div>
+        <div className={classes.xAxis}></div>
+      </div>
+    </div>
+  );
+}

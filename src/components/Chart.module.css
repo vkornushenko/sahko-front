@@ -1,0 +1,56 @@
+
+
+.yAxisLabelsContainer{
+  display: flex;
+  flex-direction: column;
+  background-color: blueviolet;
+  justify-content: space-between;
+  position: absolute;
+  z-index: 10;
+}
+
+.yAxisLabelsContainer div{
+  height: 100%;
+  border-top: 1px dotted wheat;
+  width: 600px;
+}
+
+.yAxisLabelsContainer p{
+  background-color: green;
+  min-height: 18px;
+}
+
+.chartContainer ul {
+  display: flex;
+  gap: 4px;
+  /* border: 1px solid blue; */
+  background-color: #191919;
+}
+
+.chartContainer ul li {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.chartContainer ul li p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: honeydew;
+  font-size: 12px;
+  background-color:brown;
+  /* border: 1px solid yellow; */
+  /* position: relative; */
+  height: 18px;
+}
+
+.candlesContainer {
+  display: flex;
+}
+.candle {
+  align-self: flex-end;
+  width: 10px;
+  display: flex;
+  flex-direction: row;
+}

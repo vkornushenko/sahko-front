@@ -8,7 +8,7 @@ import { filterDataByDate } from "@/lib/dateUtils";
 // TODO: component refactoring
 // FIX BUG: if (frame > chart) => chart sticks to the right side of the frame
 
-export default function ChartTypeBar({ data, units, title, subtitle }) {
+export default function ChartTypeBar({ data, units, title, subtitle, maxGenerationValue }) {
   const now = new Date();
   const today = new Date();
   today.setHours(0, 0, 0);
@@ -27,7 +27,7 @@ export default function ChartTypeBar({ data, units, title, subtitle }) {
       const relativeData = data.map((item) => ({
         start: item.start,
         end: item.end,
-        value: (item.value / 9237) * 100,
+        value: (item.value / maxGenerationValue) * 100,
       }));
       setChartDataset(relativeData);
       // console.log(data[0]);

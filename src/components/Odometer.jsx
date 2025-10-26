@@ -3,30 +3,63 @@
 import React, { useEffect, useState } from "react";
 import classes from "./Odometer.module.css";
 import { motion, animate, useMotionValue, useTransform } from "framer-motion";
+// import { fetchFingridData } from "@/lib/actions";
 
-export default function Odometer({currentValue}) {
-  const [windGenerationValue, setWindGenerationValue] = useState(currentValue || 0);
+export default function Odometer({ currentValue, units, name, maxGenerationValue, stratTime }) {
+  // const [isLoading, setIsLoading] = useState(false);
+
+  // const [windGenerationValue, setWindGenerationValue] = useState(
+  //   currentValue || 0
+  // );
   const [pointerDeg, setPointerDeg] = useState(-135);
   const defaultMotionValue = useMotionValue(0);
   const rounded = useTransform(defaultMotionValue, (latest) =>
     Math.floor(latest)
   );
 
-  const testHandler = () => {
-    const testValues = [0, 250, 1248, 2284, 3296, 4127, 5234, 6123, 7345, 8234, 9237];
-    setWindGenerationValue((prev) => {
-      let newValue;
-      do {
-        newValue = testValues[Math.floor(Math.random() * testValues.length)];
-      } while (newValue === prev); // repeat if same as previous
-      return newValue;
-    }, [currentValue]);
-  };
+  // useEffect(() => {
+  //   let isMounted = true;
+
+  //   async function loadData() {
+  //     setIsLoading(true);
+  //     // 1️⃣ Wait 2 seconds first
+  //     await new Promise((resolve) => setTimeout(resolve, 2000));
+  //     console.log("timeout resolved");
+
+  //     console.log("fetching begins");
+  //     const fingridWindData = await fetchFingridData(
+  //       268,
+  //       "2025-10-23T00:00:00.000Z"
+  //     );
+  //     console.log(fingridWindData);
+  //     setIsLoading(false);
+  //   }
+  //   // loadData();
+
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []);
+
+  // const testHandler = () => {
+  //   const testValues = [
+  //     0, 250, 1248, 2284, 3296, 4127, 5234, 6123, 7345, 8234, 9237,
+  //   ];
+  //   setWindGenerationValue(
+  //     (prev) => {
+  //       let newValue;
+  //       do {
+  //         newValue = testValues[Math.floor(Math.random() * testValues.length)];
+  //       } while (newValue === prev); // repeat if same as previous
+  //       return newValue;
+  //     },
+  //     [currentValue]
+  //   );
+  // };
 
   // const windGenerationValue = 9237; // example value
-  const maxWindGeneration = 9237; // example max value
-  const windGenerationPercentage =
-    (windGenerationValue / maxWindGeneration) * 100;
+  // const maxGenerationValue = 9237; // example max value
+  const windGenerationPercentage = (currentValue / maxGenerationValue) * 100;
   // console.log(windGenerationPercentage);
   const deg = (270 * windGenerationPercentage) / 100;
   // console.log(deg)
@@ -36,12 +69,12 @@ export default function Odometer({currentValue}) {
 
   useEffect(() => {
     setPointerDeg(-135 + deg);
-    const controls = animate(defaultMotionValue, windGenerationValue, {
+    const controls = animate(defaultMotionValue, currentValue, {
       duration: 1.5,
       ease: "easeOut",
     });
     return controls.stop;
-  }, [windGenerationValue]);
+  }, []);
 
   const steps = [
     -45, -30, -15, 0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195,
@@ -76,18 +109,18 @@ export default function Odometer({currentValue}) {
             </li>
           ))}
         </ul>
-        <div className={classes.center}></div>
 
+        <div className={classes.center}></div>
         {/* min -135 max 135 | ampl 270 */}
         <div
           className={classes.pointer}
           style={{ transform: `rotate(${pointerDeg}deg)` }}
         ></div>
-        <div className={classes.value_container}>
+
+        <div className={classes.value_container} title={!stratTime ? 'no data' : stratTime}>
+          <p className={classes.name}>{name}</p>
           <motion.p className={classes.value}>{rounded}</motion.p>
-          <p className={classes.units} onClick={() => testHandler()}>
-            MW
-          </p>
+          <p className={classes.units}>{units}</p>
         </div>
       </div>
     </>

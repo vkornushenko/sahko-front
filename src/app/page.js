@@ -1,36 +1,67 @@
+// export const dynamic = "force-dynamic";
+
 // import BarChart from "@/components/BarChart";
 // import ChartSketch from "@/components/ChartSketch";
 import ChartTypeBar from "@/components/ChartTypeBar";
 import Odometer from "@/components/Odometer";
 // import PriceLayer from "@/components/PriceLayer";
 import { fetchLatestPriceData, fetchFingridData } from "@/lib/actions";
+import classes from "./page.module.css";
+
+// forces page to be dynamic
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  const { prices } = await fetchLatestPriceData();
+  const prices = await fetchLatestPriceData();
   // hardcoded ASC logic
   prices.reverse();
   // console.log(prices);
+
+  const fingridDataWind = await fetchFingridData(
+    245,
+    "2025-10-26T00:00:00.000Z",
+    288,
+    "asc",
+    15*60*100 // 15 minutes in seconds
+  );
+  const fingridDataSolar = await fetchFingridData(
+    248,
+    "2025-10-26T00:00:00.000Z",
+    288,
+    "asc",
+    15*60*100 // 15 minutes in seconds
+  );
+
+  const fingridDataCurrentWindProduction = await fetchFingridData(
+    181,
+    "",
+    1,
+    "desc",
+    3*60*100 // 3 minutes in seconds
+  );
+  // console.log(fingridDataCurrentWindProduction[0].value);
+  // console.log(fingridDataCurrentWindProduction[0].endTime);
+
+  const fingridDataCurrentHydroProduction = await fetchFingridData(
+    191,
+    "",
+    1,
+    "desc",
+    3*60*100 // 3 minutes in seconds
+  );
+
+  const fingridDataCurrentNuclearProduction = await fetchFingridData(
+    188,
+    "",
+    1,
+    "desc",
+    3*60*100 // 3 minutes in seconds
+  );
 
   // TODO: fix 429 and other responces
   // 429 - 1 request in 2 sec limit
   // 403 - 10k requests in 1 day
   // https://data.fingrid.fi/en/faq
-
-  const fingridDataWind = await fetchFingridData(
-    245,
-    "2025-10-20T00:00:00.000Z"
-  );
-
-  // // await delay(2100);
-
-  // const fingridDataSolar = await fetchFingridData(
-  //   248,
-  //   "2025-10-15T00:00:00.000Z"
-  // );
-
-  // console.log(fingridDataSolar);
 
   const marketElectricityPricesChart = prices
     ? prices.map((item) => ({
@@ -48,42 +79,14 @@ export default async function Home() {
       }))
     : [];
 
-  // const solarPowerGenForecastChart = fingridDataSolar
-  //   ? fingridDataSolar.map((item) => ({
-  //       value: item.value,
-  //       start: new Date(item.startTime),
-  //       end: new Date(item.endTime),
-  //     }))
-  //   : [];
+  const solarPowerGenForecastChart = fingridDataSolar
+    ? fingridDataSolar.map((item) => ({
+        value: item.value,
+        start: new Date(item.startTime),
+        end: new Date(item.endTime),
+      }))
+    : [];
 
-  // hardcoded approach (later should add ASC/DESC filter)
-  // prices.reverse();
-  // console.log(prices);
-
-  // prices[164].price = 9; // temp hack to see current candle
-  // prices[165].price = 89;
-  // prices[166].price = 9;
-  // prices[167].price = 9;
-  // console.log(prices)
-
-  // console.log(prices[0].startDate)
-
-  // const fingridData = await fetchFingridData();
-
-  // const pricesFromOpenAPI = await fetchLatestPriceData();
-  // const dataFromFinGrid = await fetchFingridData(pricesFromOpenAPI.prices);
-
-  // const mappedFinGridData = await dataFromFinGrid.data.map((item) => ({
-  //   price: item.value/9026, // harvested wind in % from total production
-  //   startDate: item.startTime,
-  //   endDate: item.endTime,
-  // }));
-  // console.log(dataFromFinGrid)
-
-  // console.log(prices[0])
-  // console.log(mappedFinGridData[0])
-  // console.log(marketElectricityPricesChart)
-  // console.log(windPowerGenForecastChart)
   return (
     <main>
       {marketElectricityPricesChart.length != 0 && (
@@ -95,29 +98,54 @@ export default async function Home() {
         />
       )}
 
+      <div className={classes.odometer_container}>
+        <Odometer
+          currentValue={fingridDataCurrentWindProduction[0].value}
+          stratTime={fingridDataCurrentWindProduction[0].startTime}
+          maxGenerationValue="9237"
+          units={"MW"}
+          name="Wind Power Generation"
+        />
+        <Odometer
+          currentValue={fingridDataCurrentHydroProduction[0].value}
+          stratTime={fingridDataCurrentHydroProduction[0].startTime}
+          maxGenerationValue="3200"
+          units={"MW"}
+          name="Hydro Power Generation"
+        />
+        <Odometer
+          currentValue={fingridDataCurrentNuclearProduction[0].value}
+          stratTime={fingridDataCurrentNuclearProduction[0].startTime}
+          maxGenerationValue="4400"
+          units={"MW"}
+          name="Nuclear Power Generation"
+        />
+      </div>
+
       {windPowerGenForecastChart.length != 0 && (
         <ChartTypeBar
           data={windPowerGenForecastChart}
-          units={["MW", '%']}
+          units={["MW", "%"]}
           title="Wind power generation forecast"
           subtitle="forecast for next 72h, with 15min step"
+          maxGenerationValue="9237" // datasetId 268
         />
       )}
 
-      {/* {solarPowerGenForecastChart.length != 0 && (
+      {solarPowerGenForecastChart.length != 0 && (
         <ChartTypeBar
           data={solarPowerGenForecastChart}
-          units={"MWh/h"}
+          units={["MW", "%"]}
           title="Solar power generation forecast"
           subtitle="forecast for next 72h, with 15min step"
+          maxGenerationValue="1512" // datasetId 267
         />
-      )} */}
+      )}
 
       {/* <BarChart /> */}
       {/* <ChartSketch fetchedPrices={prices} chartHeight={200}/> */}
       {/* <ChartSketch fetchedPrices={mappedFinGridData} chartHeight={200}/> */}
       {/* <PriceLayer rawData={prices}/> */}
-    <Odometer currentValue={6131}/>
     </main>
   );
 }

@@ -1,10 +1,7 @@
 // export const dynamic = "force-dynamic";
 
-// import BarChart from "@/components/BarChart";
-// import ChartSketch from "@/components/ChartSketch";
 import ChartTypeBar from "@/components/ChartTypeBar";
 import Odometer from "@/components/Odometer";
-// import PriceLayer from "@/components/PriceLayer";
 import { fetchLatestPriceData, fetchFingridData } from "@/lib/actions";
 import classes from "./page.module.css";
 
@@ -19,14 +16,14 @@ export default async function Home() {
 
   const fingridDataWind = await fetchFingridData(
     245,
-    "2025-10-26T00:00:00.000Z",
+    "2025-10-27T00:00:00.000Z",
     288,
     "asc",
     15*60*100 // 15 minutes in seconds
   );
   const fingridDataSolar = await fetchFingridData(
     248,
-    "2025-10-26T00:00:00.000Z",
+    "2025-10-27T00:00:00.000Z",
     288,
     "asc",
     15*60*100 // 15 minutes in seconds
@@ -116,7 +113,7 @@ export default async function Home() {
         <Odometer
           currentValue={fingridDataCurrentNuclearProduction[0].value}
           stratTime={fingridDataCurrentNuclearProduction[0].startTime}
-          maxGenerationValue="4400"
+          maxGenerationValue="4400" // google: Finland nuclear power capacity
           units={"MW"}
           name="Nuclear Power Generation"
         />
@@ -141,11 +138,6 @@ export default async function Home() {
           maxGenerationValue="1512" // datasetId 267
         />
       )}
-
-      {/* <BarChart /> */}
-      {/* <ChartSketch fetchedPrices={prices} chartHeight={200}/> */}
-      {/* <ChartSketch fetchedPrices={mappedFinGridData} chartHeight={200}/> */}
-      {/* <PriceLayer rawData={prices}/> */}
     </main>
   );
 }

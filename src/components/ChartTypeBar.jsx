@@ -8,7 +8,13 @@ import { filterDataByDate } from "@/lib/dateUtils";
 // TODO: component refactoring
 // FIX BUG: if (frame > chart) => chart sticks to the right side of the frame
 
-export default function ChartTypeBar({ data, units, title, subtitle, maxGenerationValue }) {
+export default function ChartTypeBar({
+  data,
+  units,
+  title,
+  subtitle,
+  maxGenerationValue,
+}) {
   const now = new Date();
   const today = new Date();
   today.setHours(0, 0, 0);
@@ -17,7 +23,7 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
   const unitsHandler = (unit) => {
     setUnitsState(unit);
   };
-  
+
   // code to handle switch to % data from harvest capacity
   const [unitsState, setUnitsState] = useState(units[0]);
   const [chartDataset, setChartDataset] = useState(data);
@@ -31,12 +37,10 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
       }));
       setChartDataset(relativeData);
       // console.log(data[0]);
-    }
-    else {
+    } else {
       setChartDataset(data);
     }
   }, [unitsState]);
-
 
   // console.log(data)
   const filteredData = filterDataByDate(chartDataset, today);
@@ -46,6 +50,7 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
   const chartValuesRef = useRef();
   const chartFrameRef = useRef();
   const [chartFrameWidth, setChartFrameWidth] = useState(0);
+  const [frameMinusChart, setframeMinusChart] = useState(0);
 
   useEffect(() => {
     if (!chartFrameRef.current || !chartValuesRef.current) return;
@@ -55,12 +60,18 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
       const frameW = chartFrameRef.current.offsetWidth;
       const valuesW = chartValuesRef.current.offsetWidth;
       const minOffSetOnReseize = frameW - valuesW;
+      setframeMinusChart(minOffSetOnReseize);
+      // console.log("frameW:" + frameW + " valuesW: " + valuesW);
       // console.log(minOffSetOnReseize)
       setChartFrameWidth(frameW);
       setMinOffset(frameW - valuesW);
-      setOffset((prevOffSet) =>
-        prevOffSet < minOffSetOnReseize ? minOffSetOnReseize : prevOffSet
-      );
+      if (minOffSetOnReseize > 0) {
+        setOffset(0);
+      } else {
+        setOffset((prevOffSet) =>
+          prevOffSet < minOffSetOnReseize ? minOffSetOnReseize : prevOffSet
+        );
+      }
     };
 
     handleResize();
@@ -73,13 +84,11 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
     barTitle: item.start.toUTCString(),
   }));
 
-  // console.log(dataUPD)
   const valueList = dataUPD.map((item) => item.value);
-  // console.log(valueList)
   const roundedHighestValue = Math.ceil(Math.max(...valueList, 0));
 
-  const maxYaxisVlaue = getNiceMax(roundedHighestValue);
-  const ticks = getYAxisTicks(maxYaxisVlaue);
+  const maxYaxisVal = getNiceMax(roundedHighestValue);
+  const ticks = getYAxisTicks(maxYaxisVal);
 
   // chart drag logic
   const [isDragging, setIsDragging] = useState(false);
@@ -88,8 +97,6 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
 
   const getMouseDownPosition = (clientX, eventName, e) => {
     if (!isDragging) {
-      // console.log("getMouseDownPosition triggered, eventName = " + eventName);
-      // console.log(e.nativeEvent);
       setIsDragging(true);
       setMouseStartPosition(clientX);
       return;
@@ -101,8 +108,6 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
     if (!isDragging) {
       return;
     }
-    // console.log("getMouseMovePosition triggered");
-    // offset should be in a range (minOffset(frameWidth-chartWidth), 0)
 
     setOffset((prev) =>
       prev + clientX - mouseStartPosition > 0
@@ -114,29 +119,15 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
     setMouseStartPosition(clientX);
   };
 
-  // const handleTouchEnd = () => {
-  //   console.log('handleTouchEnd triggered')
-  //   setIsDragging(false);
-  // }
   const handleMouseUp = (e, eventName) => {
-    // console.log('handleMouseUp (before if) ' + eventName + e.target.tagName.toLowerCase())
     if (
       !isDragging ||
       (isDragging &&
         eventName === "onMouseOut" &&
         e.target.tagName.toLowerCase() === "li")
-      // (isDragging &&
-      //   eventName === "onTouchEnd" &&
-      //   e.target.tagName.toLowerCase() === "li")
     ) {
       return;
     }
-    // console.log(
-    //   "handleMouseUp, eventName=" +
-    //     eventName +
-    //     " target=" +
-    //     e.target.tagName.toLowerCase()
-    // );
     setIsDragging(false);
   };
 
@@ -147,7 +138,6 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
           {title}, {unitsState}
         </h1>
         <h2>{subtitle}</h2>
-        {/* {units.length > 1 && ( */}
         <div>
           <ul>
             {units.map((unitItem, index) => (
@@ -157,18 +147,18 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
             ))}
           </ul>
         </div>
-        {/* )} */}
-        {/* <p>
-          offset = {offset}px | frameW= {chartFrameWidth}
-        </p> */}
       </div>
       <div className={classes.chart}>
         <div className={classes.yaxis_labels}>
           <ul>
             {ticks.map((tick, index) => (
-              <li key={index}>{tick}</li>
+              <li key={index}>
+                <p>{tick}</p>
+              </li>
             ))}
-            <li style={{ border: 0 }}>0</li>
+            <li style={{ border: 0 }}>
+              <p>0</p>
+            </li>
           </ul>
         </div>
         <div
@@ -190,21 +180,14 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
         >
           <ul
             className={classes.bars}
-            style={{ left: offset }}
+            style={{ left: offset, width: frameMinusChart > 0 ? "100%" : "" }}
             ref={chartValuesRef}
           >
             {dataUPD.map((item, index) => (
               <li
                 key={index}
-                // onMouseDown={(e) => getMouseDownPosition(e.clientX)}
-                // onMouseMove={(e) => getMouseMovePosition(e.clientX)}
-                // onMouseUp={handleMouseUp}
-                // onMouseOut={(e) => {
-                //   handleMouseUp(e);
-                // }}
                 className={item.end < now ? classes.dimmed : ""}
                 style={{
-                  height: (190 / maxYaxisVlaue) * item.value,
                   pointerEvents: isDragging ? "none" : "auto",
                 }}
                 title={
@@ -215,9 +198,28 @@ export default function ChartTypeBar({ data, units, title, subtitle, maxGenerati
                   decodeURI("%0A") +
                   item.barTitle
                 }
-              ></li>
+              >
+                <div
+                  className={classes.bar}
+                  style={{ height: (200 / maxYaxisVal) * item.value }}
+                >
+                  {index % 4 === 0 && (
+                    <>
+                      <div
+                        className={classes.time_pointers}
+                        style={{
+                          borderColor:
+                            item.start.getHours() === 0 ? "#ffffff" : "",
+                        }}
+                      ></div>
+                      <p className={classes.time}>{item.start.getHours()}</p>
+                    </>
+                  )}
+                </div>
+              </li>
             ))}
           </ul>
+
           <ul className={classes.lines}>
             {ticks.map((item, index) => (
               <li key={index}></li>

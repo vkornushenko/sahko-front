@@ -44,8 +44,9 @@ export async function fetchFingridData(
 
   // console.log('revalidate from actions.js = ');
   // console.log(revalidate);
-  console.log('my API call from actions.js:')
-  console.log(`${baseUrl}/api/fingrid?${params}`);
+
+  // console.log('my API call from actions.js:')
+  // console.log(`${baseUrl}/api/fingrid?${params}`);
 
   try {
     const res = await fetch(`${baseUrl}/api/fingrid?${params}`, {

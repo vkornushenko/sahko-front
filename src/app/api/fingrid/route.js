@@ -12,8 +12,8 @@ export async function GET(request) {
   const sortOrder = searchParams.get("sortOrder") || "asc";
   const revalidate = +searchParams.get("revalidate") || 60; // default 60 seconds
   
-  console.log("revalidate value from route.js");
-  console.log(revalidate);
+  // console.log("revalidate value from route.js");
+  // console.log(revalidate);
   
   
   if (!datasetId) {

@@ -59,7 +59,6 @@
 
 .bars {
   height: 200px;
-  /* min-width:100%; */
   display: flex;
   gap: 2px;
   position: relative;
@@ -100,17 +99,9 @@
 .time {
   position: absolute;
   bottom:-1.6em;
-  /* left:-0.4em; */
   font-size: 0.8em;
-  /* top: -0.4em; */
   opacity: 0.7;
   user-select: none;
-  /* top: -1.2em;
-  font-size: 0.7em;
-  background-color: var(--background);
-  padding: 1px 4px;
-  border-radius: 4px;
-  white-space: nowrap; */
 }
 
 .bars li.dimmed div {
@@ -126,7 +117,6 @@
   display: flex;
   flex-direction: column;
   pointer-events: none;
-  /* background-color: #171717; */
 }
 
 .lines li {
@@ -135,4 +125,29 @@
 }
 .lines li:first-child {
   border-top: 1px dotted #4e4e4e;
+}
+
+.chart_view_options{
+display: flex;
+gap:6px;
+}
+.chart_view_options p{
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.chart_view_options li{
+  padding: 0 4px;
+}
+.chart_view_options li.selected{
+  opacity: 0.8;
+  background-color: aliceblue;
+  color: #1d1d1d;
+}
+.chart_view_options li:hover{
+  cursor: pointer;
+  opacity: 0.8;
+  background-color: aliceblue;
+  color: #1d1d1d;
+  
 }

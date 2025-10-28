@@ -43,7 +43,7 @@ export async function GET(request) {
   //   `https://data.fingrid.fi/api/datasets/${datasetId}/data?${params}`
   // );
 
-  console.log("🌐 Fetching new data from Fingrid API...");
+  console.log(`🌐 Fetching new data from Fingrid API (datasetId=${datasetId})...`);
 
   try {
     // prices for the next day available at 14:00 EET

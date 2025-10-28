@@ -45,20 +45,65 @@ export function filterPricesByDate(fetchedPrices, mode) {
 
 // function sets a template to transforms Date object to string
 export function formatDate(priceData) {
-    const day = priceData.startDate.getDate();
-    const month = priceData.startDate.getMonth() + 1;
-    const hours = priceData.startDate.getHours().toString().padStart(2, "0");
-    const minutes = priceData.startDate
-      .getMinutes()
-      .toString()
-      .padStart(2, "0");
-    const endMin = priceData.endDate.getMinutes().toString().padStart(2, "0");
-    return `${day}.${month} ${hours}:${minutes}...${hours}:${endMin}`;
+  const day = priceData.startDate.getDate();
+  const month = priceData.startDate.getMonth() + 1;
+  const hours = priceData.startDate.getHours().toString().padStart(2, "0");
+  const minutes = priceData.startDate.getMinutes().toString().padStart(2, "0");
+  const endMin = priceData.endDate.getMinutes().toString().padStart(2, "0");
+  return `${day}.${month} ${hours}:${minutes}...${hours}:${endMin}`;
+}
+
+export function getMinusPlusByKeyword(keyword) {
+  switch (keyword?.toLowerCase()) {
+    case "yesterday":
+      return { minus: -1 * 24 * 60, plus: 0 };
+    case "today":
+      return { minus: 0, plus: 1 * 24 * 60 };
+    case "tomorrow":
+      return { minus: 1 * 24 * 60, plus: 2 * 24 * 60 };
+    case "3 days ahead":
+      return { minus: 0, plus: 3 * 24 * 60 };
+    default:
+      return { minus: -3 * 24 * 60, plus: 3 * 24 * 60 };
+  }
+}
+
+export function timeInterval({ now, fromZero, minus, plus }) {
+  // now - current Date obj from client
+  // fromZero - should day start from 0 hours? (true/false)
+  // minus - start time before now (in min)
+  // plus - end time after now (in min)
+
+  if (fromZero === true) {
+    now.setHours(0, 0, 0);
   }
 
-  export function filterDataByDate(data, start){
-    // TODO if !end => end=now+5days
-    // console.log(data[0].end);
-    const filteredData = data.filter((item) => item.end >= start);
-    return filteredData;
+  const start = new Date(now);
+  start.setMinutes(minus);
+
+  const end = new Date(now);
+  end.setMinutes(plus);
+
+  return { start, end };
+}
+
+export function filterDataByDate({ data = [], start, end }) {
+  console.log(start);
+  console.log(end);
+  // TODO if !end => end=now+5days
+  // console.log(data[0].end);
+
+  // filters data starting from "start"
+  // const filteredData = data.filter((item) => item.end >= start);
+  let filteredData;
+  if (start && !end) {
+    filteredData = data.filter((item) => item.end > start);
   }
+  if (start && end) {
+    filteredData = data.filter((item) => item.end > start && item.end < end);
+  }
+
+  // const filteredData = data.filter((item) => item.start >= start && item.end <= end);
+
+  return filteredData;
+}

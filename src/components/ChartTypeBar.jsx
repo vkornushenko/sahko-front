@@ -3,7 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import classes from "./ChartTypeBar.module.css";
 import { getNiceMax, getYAxisTicks } from "@/lib/utils";
-import { filterDataByDate } from "@/lib/dateUtils";
+import {
+  filterDataByDate,
+  getMinusPlusByKeyword,
+  timeInterval,
+} from "@/lib/dateUtils";
 
 // TODO: component refactoring
 // FIX BUG: if (frame > chart) => chart sticks to the right side of the frame
@@ -14,10 +18,16 @@ export default function ChartTypeBar({
   title,
   subtitle,
   maxGenerationValue,
+  defaulTimeRangeKeyword,
+  timeRangeKeywords,
 }) {
-  const now = new Date();
-  const today = new Date();
-  today.setHours(0, 0, 0);
+  const [timeRangeKeyword, setTimeRangeKeyword] = useState(
+    defaulTimeRangeKeyword
+  );
+
+  function handleTimeRange(keyword) {
+    setTimeRangeKeyword(keyword);
+  }
 
   // console.log(unitsState);
   const unitsHandler = (unit) => {
@@ -42,8 +52,37 @@ export default function ChartTypeBar({
     }
   }, [unitsState]);
 
-  // console.log(data)
-  const filteredData = filterDataByDate(chartDataset, today);
+  const now = new Date();
+
+  // // time filter
+  // // start of a day
+  // const today = new Date();
+  // today.setHours(0, 0, 0);
+  // // end of a day
+  // const end = new Date(today);
+  // end.setDate(end.getDate() + 1);
+
+  // yesterday
+  // const {start, end} = timeInterval({now: now, fromZero: true, minus: -1*24*60, plus: 0});
+  // today
+  // const {start, end} = timeInterval({now: now, fromZero: true, minus: 0, plus: 1*24*60});
+  // tomorrow
+  // const {start, end} = timeInterval({now: now, fromZero: true, minus: 1*24*60, plus: 2*24*60});
+  // after tomorrow
+
+  const { minus, plus } = getMinusPlusByKeyword(timeRangeKeyword);
+  const { start, end } = timeInterval({
+    now: now,
+    fromZero: true,
+    minus: minus,
+    plus: plus,
+  });
+
+  const filteredData = filterDataByDate({
+    data: chartDataset,
+    start: start,
+    end: end,
+  });
 
   // logic to calculate max chart scroll
   const [minOffset, setMinOffset] = useState(0);
@@ -81,7 +120,7 @@ export default function ChartTypeBar({
 
   const dataUPD = filteredData.map((item) => ({
     ...item,
-    barTitle: item.start.toUTCString(),
+    barTitle: item.start.toString(),
   }));
 
   const valueList = dataUPD.map((item) => item.value);
@@ -139,14 +178,23 @@ export default function ChartTypeBar({
         </h1>
         <h2>{subtitle}</h2>
         <div>
-          <ul>
+          <ul className={classes.chart_view_options}>
+            <p>units:</p>
             {units.map((unitItem, index) => (
-              <li key={index} onClick={() => unitsHandler(unitItem)}>
+              <li key={index} onClick={() => unitsHandler(unitItem)} className={unitItem === unitsState ? classes.selected : ''}>
                 {unitItem}
               </li>
             ))}
           </ul>
         </div>
+        <ul className={classes.chart_view_options}>
+          <p>view chart for:</p>
+          {timeRangeKeywords.map((keyword, index) => (
+            <li key={index} onClick={() => handleTimeRange(keyword)} className={keyword === timeRangeKeyword ? classes.selected : ''}>
+              {keyword}
+            </li>
+          ))}
+        </ul>
       </div>
       <div className={classes.chart}>
         <div className={classes.yaxis_labels}>
@@ -192,7 +240,7 @@ export default function ChartTypeBar({
                 }}
                 title={
                   "price = " +
-                  Math.round(item.value) +
+                  item.value +
                   " " +
                   unitsState +
                   decodeURI("%0A") +

@@ -6,7 +6,7 @@ import { fetchLatestPriceData, fetchFingridData } from "@/lib/actions";
 import classes from "./page.module.css";
 
 // forces page to be dynamic
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const prices = await fetchLatestPriceData();
@@ -17,16 +17,16 @@ export default async function Home() {
   const fingridDataWind = await fetchFingridData(
     245,
     "2025-10-27T00:00:00.000Z",
-    288,
+    384, // 4 days
     "asc",
-    15*60*100 // 15 minutes in seconds
+    15 * 60 * 100 // 15 minutes in seconds
   );
   const fingridDataSolar = await fetchFingridData(
     248,
     "2025-10-27T00:00:00.000Z",
-    288,
+    384, // 4 days
     "asc",
-    15*60*100 // 15 minutes in seconds
+    15 * 60 * 100 // 15 minutes in seconds
   );
 
   const fingridDataCurrentWindProduction = await fetchFingridData(
@@ -34,7 +34,7 @@ export default async function Home() {
     "",
     1,
     "desc",
-    3*60*100 // 3 minutes in seconds
+    3 * 60 * 100 // 3 minutes in seconds
   );
   // console.log(fingridDataCurrentWindProduction[0].value);
   // console.log(fingridDataCurrentWindProduction[0].endTime);
@@ -44,7 +44,7 @@ export default async function Home() {
     "",
     1,
     "desc",
-    3*60*100 // 3 minutes in seconds
+    3 * 60 * 100 // 3 minutes in seconds
   );
 
   const fingridDataCurrentNuclearProduction = await fetchFingridData(
@@ -52,7 +52,7 @@ export default async function Home() {
     "",
     1,
     "desc",
-    3*60*100 // 3 minutes in seconds
+    3 * 60 * 100 // 3 minutes in seconds
   );
 
   // TODO: fix 429 and other responces
@@ -92,6 +92,8 @@ export default async function Home() {
           units={["cnt/kWh"]}
           title="Finnish exchange-traded electricity prices"
           subtitle="prices in cnt/kWh, with 15min step"
+          defaulTimeRangeKeyword="today"
+          timeRangeKeywords={["yesterday", "today", "tomorrow"]}
         />
       )}
 
@@ -126,6 +128,8 @@ export default async function Home() {
           title="Wind power generation forecast"
           subtitle="forecast for next 72h, with 15min step"
           maxGenerationValue="9237" // datasetId 268
+          defaulTimeRangeKeyword="3 days ahead"
+          timeRangeKeywords={["yesterday", "today", "tomorrow", "3 days ahead"]}
         />
       )}
 
@@ -136,6 +140,8 @@ export default async function Home() {
           title="Solar power generation forecast"
           subtitle="forecast for next 72h, with 15min step"
           maxGenerationValue="1512" // datasetId 267
+          defaulTimeRangeKeyword="3 days ahead"
+          timeRangeKeywords={["yesterday", "today", "tomorrow", "3 days ahead"]}
         />
       )}
     </main>

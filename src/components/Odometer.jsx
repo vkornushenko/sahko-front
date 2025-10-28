@@ -6,6 +6,8 @@ import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 // import { fetchFingridData } from "@/lib/actions";
 
 export default function Odometer({ currentValue, units, name, maxGenerationValue, stratTime }) {
+  const startTimeObj = new Date(stratTime);
+  
   // const [isLoading, setIsLoading] = useState(false);
 
   // const [windGenerationValue, setWindGenerationValue] = useState(
@@ -117,7 +119,7 @@ export default function Odometer({ currentValue, units, name, maxGenerationValue
           style={{ transform: `rotate(${pointerDeg}deg)` }}
         ></div>
 
-        <div className={classes.value_container} title={!stratTime ? 'no data' : stratTime}>
+        <div className={classes.value_container} title={!stratTime ? 'no data' : startTimeObj.toString()}>
           <p className={classes.name}>{name}</p>
           <motion.p className={classes.value}>{rounded}</motion.p>
           <p className={classes.units}>{units}</p>

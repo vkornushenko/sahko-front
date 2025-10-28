@@ -88,8 +88,8 @@ export function timeInterval({ now, fromZero, minus, plus }) {
 }
 
 export function filterDataByDate({ data = [], start, end }) {
-  console.log(start);
-  console.log(end);
+  // console.log(start);
+  // console.log(end);
   // TODO if !end => end=now+5days
   // console.log(data[0].end);
 

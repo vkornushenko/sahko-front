@@ -4,25 +4,24 @@ let cache = {};
 
 export async function GET(request) {
   const now = Date.now();
-  
+
   const { searchParams } = new URL(request.url);
   const datasetId = +searchParams.get("datasetId"); // Wind power generation forecast 72h
   const startTime = searchParams.get("startTime"); // "2025-10-25T00:00:00.000Z"
   const pageSize = +searchParams.get("pageSize"); // 15min intervals for 72h
   const sortOrder = searchParams.get("sortOrder") || "asc";
   const revalidate = +searchParams.get("revalidate") || 60; // default 60 seconds
-  
+
   // console.log("revalidate value from route.js");
   // console.log(revalidate);
-  
-  
+
   if (!datasetId) {
     return NextResponse.json(
       { error: "Missing datasetId parameter" },
       { status: 400 }
     );
   }
-  
+
   const cached = cache[datasetId];
 
   const params = new URLSearchParams({ sortOrder });
@@ -31,7 +30,10 @@ export async function GET(request) {
 
   // Check if cached data is still valid
   if (cached && now - cached.timestamp < revalidate * 1000) {
-    console.log("!!! HUOM !!! cache data length: ", cache[datasetId].data.length);
+    console.log(
+      "!!! HUOM !!! cache data length: ",
+      cache[datasetId].data.length
+    );
     console.log("✅ Using cached Fingrid data (datasetId:", datasetId + ")");
     return NextResponse.json(cached, { status: 200 });
   }
@@ -43,9 +45,12 @@ export async function GET(request) {
   //   `https://data.fingrid.fi/api/datasets/${datasetId}/data?${params}`
   // );
 
-  console.log(`🌐 Fetching new data from Fingrid API (datasetId=${datasetId})...`);
+  console.log(
+    `🌐 Fetching new data from Fingrid API (datasetId=${datasetId})...`
+  );
 
   try {
+    const timerStart = new Date();
     // prices for the next day available at 14:00 EET
     const res = await fetch(
       // url,
@@ -93,9 +98,13 @@ export async function GET(request) {
       data,
       timestamp: now,
     };
+    // const timerStop = new Date();
+    // const duration = timerStop - timerStart;
+    // console.log("!!! duration was = " + duration + "ms");
 
-    // wait 2 sec to avoid 429 error
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // wait 2+ sec to avoid 429 error
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+
     // if everything fine, return data with 200 status
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {

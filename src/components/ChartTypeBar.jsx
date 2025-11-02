@@ -20,6 +20,7 @@ export default function ChartTypeBar({
   maxGenerationValue,
   defaulTimeRangeKeyword,
   timeRangeKeywords,
+  chartValues,
 }) {
   // date filter logic
   const [timeRangeKeyword, setTimeRangeKeyword] = useState(
@@ -139,18 +140,26 @@ export default function ChartTypeBar({
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [data]);
+  }, [data, timeRangeKeyword]);
 
   const dataUPD = filteredData.map((item) => ({
     ...item,
     barTitle: item.start.toString(),
+    barTitleReadable: `${item.start.getDate()} ${
+      months[item.start.getMonth()]
+    } ${item.start.getHours()}:${item.start.getMinutes()} - ${item.end.getHours()}:${
+      item.end.getMinutes()<10 ? '0' + item.end.getMinutes() : [14, 29, 44, 59].includes(item.end.getMinutes()) ? item.end.getMinutes() + 1 : item.end.getMinutes()
+    }`,
   }));
 
   const valueList = dataUPD.map((item) => item.value);
+
   const roundedHighestValue = Math.ceil(Math.max(...valueList, 0));
 
   const maxYaxisVal = getNiceMax(roundedHighestValue);
+
   const ticks = getYAxisTicks(maxYaxisVal);
+  // console.log(ticks);
 
   const getMouseDownPosition = (clientX, eventName, e) => {
     if (!isDragging) {
@@ -191,10 +200,9 @@ export default function ChartTypeBar({
   return (
     <div className={classes.chartTypeBarContainer}>
       <div className={classes.chart_header_module}>
-        <h1>
-          {title}, {unitsState}
-        </h1>
+        <h1>{title}</h1>
         <h2>{subtitle}</h2>
+        {/* <p>chartFrameWidth = {chartFrameWidth} | frameMinusChart = {frameMinusChart}</p> */}
         <div>
           <ul className={classes.chart_view_options}>
             <p>units:</p>
@@ -268,14 +276,17 @@ export default function ChartTypeBar({
                   style={{
                     pointerEvents: isDragging ? "none" : "auto",
                   }}
-                  title={
-                    "price = " +
-                    item.value +
-                    " " +
-                    unitsState +
-                    decodeURI("%0A") +
-                    item.barTitle
-                  }
+                  // title={
+                  //   "price = " +
+                  //   item.value +
+                  //   " " +
+                  //   unitsState +
+                  //   decodeURI("%0A") +
+                  //   item.barTitle
+                  // }
+                  title={`${chartValues} = ${
+                    item.value
+                  } ${unitsState} ${decodeURI("%0A")}${item.barTitleReadable}`}
                 >
                   <div
                     className={classes.bar}
@@ -294,7 +305,12 @@ export default function ChartTypeBar({
                         {item.start.getHours() === 0 && (
                           <p
                             className={classes.day}
-                            style={{borderColor: item.start.getDay()%2===0 ? 'salmon' : 'violet'}}
+                            style={{
+                              borderColor:
+                                item.start.getDay() % 2 === 0
+                                  ? "salmon"
+                                  : "violet",
+                            }}
                           >{`${item.start.getDate()} ${
                             months[item.start.getMonth()]
                           }`}</p>

@@ -57,12 +57,12 @@
   overflow: hidden;
 }
 
-.chart_back_layer{
+.chart_back_layer {
   position: absolute;
-  left:0;
-  top:0;
-  width:100%;
-  height:200px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 200px;
   background-color: #171717;
 }
 
@@ -98,32 +98,32 @@
   justify-content: center;
   align-items: flex-end;
 }
-.time_pointers{
+.time_pointers {
   position: absolute;
-  left:-2px;
-  bottom:-4px;
-  height:4px;
-  border-left:2px solid #4e4e4e;
+  left: -2px;
+  bottom: -4px;
+  height: 4px;
+  border-left: 2px solid #4e4e4e;
 }
 .time {
   position: absolute;
-  bottom:-1.6em;
-  left:0;
+  bottom: -1.6em;
+  left: 0;
   font-size: 0.8em;
   opacity: 0.7;
   user-select: none;
   user-select: none;
 }
-.day{
+.day {
   position: absolute;
-  bottom:-3.4em;
-  left:0;
+  bottom: -3.4em;
+  left: 0;
   font-size: 0.8em;
   opacity: 0.7;
   user-select: none;
   white-space: nowrap;
   user-select: none;
-  width: calc(576px + 95*2px);
+  width: calc(576px + 95 * 2px);
   border-top-width: 2px;
   border-top-style: solid;
   padding-top: 2px;
@@ -152,34 +152,42 @@
   border-top: 1px dotted #4e4e4e;
 }
 
-.chart_view_options{
-display: flex;
-gap:6px;
+.chart_view_options {
+  display: flex;
+  gap: 6px;
 }
-.chart_view_options p{
+.chart_view_options > p {
   opacity: 0.7;
   text-decoration: underline;
 }
 
-.chart_view_options li{
+.chart_view_options li {
   padding: 0 4px;
+  display: flex;
+  align-items: center;
 }
-.chart_view_options li.selected{
+.chart_view_options li p{
+  text-align: center;
+}
+
+.chart_view_options li.selected {
   opacity: 0.8;
   background-color: aliceblue;
   color: #1d1d1d;
 }
-.chart_view_options li:hover{
+.chart_view_options li:hover {
   cursor: pointer;
   opacity: 0.8;
   background-color: aliceblue;
+}
+.chart_view_options li:hover p, .chart_view_options li.selected p {
   color: #1d1d1d;
-  
+  /* text-align: center; */
 }
 
-.chart_placeholder{
-  width:100%;
-  height:200px;
+.chart_placeholder {
+  width: 100%;
+  height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: center;

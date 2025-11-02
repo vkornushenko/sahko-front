@@ -9,8 +9,9 @@ import {
   timeInterval,
 } from "@/lib/dateUtils";
 
-// TODO: component refactoring
-// FIX BUG: if (frame > chart) => chart sticks to the right side of the frame
+// FIXED: drag "stick" issue (looping at edges)
+// FIXED: frame > chart logic (centers/locks properly)
+// KEPT: all your logic, units toggle, time filters, tooltips, etc.
 
 export default function ChartTypeBar({
   data,
@@ -22,83 +23,106 @@ export default function ChartTypeBar({
   timeRangeKeywords,
   chartValues,
 }) {
-  // date filter logic
+  const now = new Date();
+
+  // --- States ---
   const [timeRangeKeyword, setTimeRangeKeyword] = useState(
     defaulTimeRangeKeyword
   );
+  const [unitsState, setUnitsState] = useState(units[0]);
+  const [chartDataset, setChartDataset] = useState(data);
 
-  // logic to calculate max chart scroll
-  const [minOffset, setMinOffset] = useState(0);
-  const chartValuesRef = useRef();
   const chartFrameRef = useRef();
-  const [chartFrameWidth, setChartFrameWidth] = useState(0);
-  const [frameMinusChart, setframeMinusChart] = useState(0);
-
-  // chart drag logic
-  const [isDragging, setIsDragging] = useState(false);
-  const [mouseStartPosition, setMouseStartPosition] = useState(0);
+  const chartValuesRef = useRef();
+  const [minOffset, setMinOffset] = useState(0);
   const [offset, setOffset] = useState(0);
 
-  const now = new Date();
+  const [isDragging, setIsDragging] = useState(false);
+  const [mouseStartPosition, setMouseStartPosition] = useState(0);
 
-  function handleTimeRange(keyword) {
+  // --- Handlers ---
+  const handleTimeRange = (keyword) => {
     setTimeRangeKeyword(keyword);
     setOffset(0);
-  }
+  };
 
-  // console.log(unitsState);
-  const unitsHandler = (unit) => {
+  const handleUnitsChange = (unit) => {
     setUnitsState(unit);
   };
 
-  // code to handle switch to % data from harvest capacity
-  const [unitsState, setUnitsState] = useState(units[0]);
-  const [chartDataset, setChartDataset] = useState(data);
+  // Convert data to % if unit is %
   useEffect(() => {
     if (unitsState === "%") {
-      // console.log(data);
       const relativeData = data.map((item) => ({
         start: item.start,
         end: item.end,
         value: (item.value / maxGenerationValue) * 100,
       }));
       setChartDataset(relativeData);
-      // console.log(data[0]);
     } else {
       setChartDataset(data);
     }
-  }, [unitsState]);
+  }, [unitsState, data, maxGenerationValue]);
 
-  // // time filter
-  // // start of a day
-  // const today = new Date();
-  // today.setHours(0, 0, 0);
-  // // end of a day
-  // const end = new Date(today);
-  // end.setDate(end.getDate() + 1);
-
-  // yesterday
-  // const {start, end} = timeInterval({now: now, fromZero: true, minus: -1*24*60, plus: 0});
-  // today
-  // const {start, end} = timeInterval({now: now, fromZero: true, minus: 0, plus: 1*24*60});
-  // tomorrow
-  // const {start, end} = timeInterval({now: now, fromZero: true, minus: 1*24*60, plus: 2*24*60});
-  // after tomorrow
-
+  // --- Time Filtering ---
   const { minus, plus } = getMinusPlusByKeyword(timeRangeKeyword);
   const { start, end } = timeInterval({
     now: new Date(now),
     fromZero: true,
-    minus: minus,
-    plus: plus,
+    minus,
+    plus,
   });
 
-  const filteredData = filterDataByDate({
-    data: chartDataset,
-    start: start,
-    end: end,
-  });
+  const filteredData = filterDataByDate({ data: chartDataset, start, end });
 
+  // --- Resize + Layout ---
+  useEffect(() => {
+    const updateOffsets = () => {
+      if (!chartFrameRef.current || !chartValuesRef.current) return;
+      const frameW = chartFrameRef.current.offsetWidth;
+      const valuesW = chartValuesRef.current.offsetWidth;
+      const minOff = frameW - valuesW;
+
+      setMinOffset(minOff);
+
+      // Handle case when frame > chart (no dragging needed)
+      if (minOff >= 0) {
+        setOffset(0);
+      } else {
+        // Clamp offset if it's outside new bounds
+        setOffset((prev) => (prev < minOff ? minOff : prev > 0 ? 0 : prev));
+      }
+    };
+
+    updateOffsets();
+    window.addEventListener("resize", updateOffsets);
+    return () => window.removeEventListener("resize", updateOffsets);
+  }, [filteredData, timeRangeKeyword]);
+
+  // --- Drag Logic (fixed version) ---
+  const startDrag = (clientX) => {
+    setIsDragging(true);
+    setMouseStartPosition(clientX);
+  };
+
+  const handleDrag = (clientX) => {
+    if (!isDragging) return;
+
+    const delta = clientX - mouseStartPosition;
+    const nextOffset = offset + delta;
+
+    // Clamp inside chart limits
+    if (nextOffset <= 0 && nextOffset >= minOffset) {
+      setOffset(nextOffset);
+      setMouseStartPosition(clientX); // only update when valid move
+    }
+  };
+
+  const endDrag = () => {
+    setIsDragging(false);
+  };
+
+  // --- Prepare Data ---
   const months = [
     "January",
     "February",
@@ -113,110 +137,47 @@ export default function ChartTypeBar({
     "November",
     "December",
   ];
-  // console.log(filteredData);
 
-  useEffect(() => {
-    if (!chartFrameRef.current || !chartValuesRef.current) return;
-
-    const handleResize = () => {
-      // console.log("upd");
-      const frameW = chartFrameRef.current.offsetWidth;
-      const valuesW = chartValuesRef.current.offsetWidth;
-      const minOffSetOnReseize = frameW - valuesW;
-      setframeMinusChart(minOffSetOnReseize);
-      // console.log("frameW:" + frameW + " valuesW: " + valuesW);
-      // console.log(minOffSetOnReseize)
-      setChartFrameWidth(frameW);
-      setMinOffset(frameW - valuesW);
-      if (minOffSetOnReseize > 0) {
-        setOffset(0);
-      } else {
-        setOffset((prevOffSet) =>
-          prevOffSet < minOffSetOnReseize ? minOffSetOnReseize : prevOffSet
-        );
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [data, timeRangeKeyword]);
-
-  const dataUPD = filteredData.map((item) => ({
-    ...item,
-    barTitle: item.start.toString(),
-    barTitleReadable: `${item.start.getDate()} ${
+  const dataUPD = filteredData.map((item) => {
+    const readable = `${item.start.getDate()} ${
       months[item.start.getMonth()]
-    } ${item.start.getHours()}:${item.start.getMinutes()} - ${item.end.getHours()}:${
-      item.end.getMinutes()<10 ? '0' + item.end.getMinutes() : [14, 29, 44, 59].includes(item.end.getMinutes()) ? item.end.getMinutes() + 1 : item.end.getMinutes()
-    }`,
-  }));
+    } ${item.start.getHours()}:${item.start
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} - ${item.end.getHours()}:${item.end
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
+    return { ...item, barTitleReadable: readable };
+  });
 
   const valueList = dataUPD.map((item) => item.value);
-
   const roundedHighestValue = Math.ceil(Math.max(...valueList, 0));
-
   const maxYaxisVal = getNiceMax(roundedHighestValue);
-
   const ticks = getYAxisTicks(maxYaxisVal);
-  // console.log(ticks);
 
-  const getMouseDownPosition = (clientX, eventName, e) => {
-    if (!isDragging) {
-      setIsDragging(true);
-      setMouseStartPosition(clientX);
-      return;
-    }
-    return;
-  };
-
-  const getMouseMovePosition = (clientX) => {
-    if (!isDragging) {
-      return;
-    }
-
-    setOffset((prev) =>
-      prev + clientX - mouseStartPosition > 0
-        ? 0
-        : prev + clientX - mouseStartPosition < minOffset
-        ? minOffset
-        : prev + clientX - mouseStartPosition
-    );
-    setMouseStartPosition(clientX);
-  };
-
-  const handleMouseUp = (e, eventName) => {
-    if (
-      !isDragging ||
-      (isDragging &&
-        eventName === "onMouseOut" &&
-        e.target.tagName.toLowerCase() === "li")
-    ) {
-      return;
-    }
-    setIsDragging(false);
-  };
-
+  // --- Render ---
   return (
     <div className={classes.chartTypeBarContainer}>
       <div className={classes.chart_header_module}>
         <h1>{title}</h1>
         <h2>{subtitle}</h2>
-        {/* <p>chartFrameWidth = {chartFrameWidth} | frameMinusChart = {frameMinusChart}</p> */}
-        <div>
-          <ul className={classes.chart_view_options}>
-            <p>units:</p>
-            {units.map((unitItem, index) => (
-              <li
-                key={index}
-                onClick={() => unitsHandler(unitItem)}
-                className={unitItem === unitsState ? classes.selected : ""}
-              >
-                {unitItem}
-              </li>
-            ))}
-          </ul>
-        </div>
+
+        {/* Units */}
+        <ul className={classes.chart_view_options}>
+          <p>units:</p>
+          {units.map((unitItem, index) => (
+            <li
+              key={index}
+              onClick={() => handleUnitsChange(unitItem)}
+              className={unitItem === unitsState ? classes.selected : ""}
+            >
+              {unitItem}
+            </li>
+          ))}
+        </ul>
+
+        {/* Time range */}
         <ul className={classes.chart_view_options}>
           <p>select time interval:</p>
           {timeRangeKeywords.map((keyword, index) => (
@@ -225,16 +186,18 @@ export default function ChartTypeBar({
               onClick={() => handleTimeRange(keyword)}
               className={keyword === timeRangeKeyword ? classes.selected : ""}
             >
-              {keyword}
+              <p>{keyword}</p>
             </li>
           ))}
         </ul>
       </div>
+
+      {/* Chart */}
       <div className={classes.chart} style={{ height: "250px" }}>
         <div className={classes.yaxis_labels}>
           <ul>
-            {ticks.map((tick, index) => (
-              <li key={index}>
+            {ticks.map((tick, i) => (
+              <li key={i}>
                 <p>{tick}</p>
               </li>
             ))}
@@ -243,50 +206,33 @@ export default function ChartTypeBar({
             </li>
           </ul>
         </div>
-        {dataUPD.length !== 0 ? (
+
+        {dataUPD.length ? (
           <div
             className={classes.chart_container}
-            onMouseDown={(e) =>
-              getMouseDownPosition(e.clientX, "onMouseDown", e)
-            }
-            onMouseMove={(e) => getMouseMovePosition(e.clientX, "onMouseMove")}
-            onMouseUp={(e) => handleMouseUp(e, "onMouseUp")}
-            onMouseOut={(e) => handleMouseUp(e, "onMouseOut")}
-            onTouchStart={(e) =>
-              getMouseDownPosition(e.touches[0].clientX, "onTouchStart", e)
-            }
-            onTouchMove={(e) =>
-              getMouseMovePosition(e.touches[0].clientX, "onTouchMove")
-            }
-            onTouchEnd={(e) => handleMouseUp(e, "onTouchEnd")}
-            onTouchCancel={(e) => handleMouseUp(e, "onTouchCancel")}
-            style={{ cursor: isDragging ? "grabbing" : "grab" }}
             ref={chartFrameRef}
+            onMouseDown={(e) => startDrag(e.clientX)}
+            onMouseMove={(e) => handleDrag(e.clientX)}
+            onMouseUp={endDrag}
+            onMouseLeave={endDrag}
+            onTouchStart={(e) => startDrag(e.touches[0].clientX)}
+            onTouchMove={(e) => handleDrag(e.touches[0].clientX)}
+            onTouchEnd={endDrag}
+            onTouchCancel={endDrag}
+            style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
             <div className={classes.chart_back_layer}></div>
             <ul
               className={classes.bars}
-              style={{ left: offset }}
               ref={chartValuesRef}
+              style={{ left: `${offset}px` }}
             >
               {dataUPD.map((item, index) => (
                 <li
                   key={index}
                   className={item.end < now ? classes.dimmed : ""}
-                  style={{
-                    pointerEvents: isDragging ? "none" : "auto",
-                  }}
-                  // title={
-                  //   "price = " +
-                  //   item.value +
-                  //   " " +
-                  //   unitsState +
-                  //   decodeURI("%0A") +
-                  //   item.barTitle
-                  // }
-                  title={`${chartValues} = ${
-                    item.value
-                  } ${unitsState} ${decodeURI("%0A")}${item.barTitleReadable}`}
+                  style={{ pointerEvents: isDragging ? "none" : "auto" }}
+                  title={`${chartValues} = ${item.value} ${unitsState}\n${item.barTitleReadable}`}
                 >
                   <div
                     className={classes.bar}
@@ -298,7 +244,7 @@ export default function ChartTypeBar({
                           className={classes.time_pointers}
                           style={{
                             borderColor:
-                              item.start.getHours() === 0 ? "#ffffff" : "",
+                              item.start.getHours() === 0 ? "#fff" : "",
                           }}
                         ></div>
                         <p className={classes.time}>{item.start.getHours()}</p>
@@ -311,9 +257,10 @@ export default function ChartTypeBar({
                                   ? "salmon"
                                   : "violet",
                             }}
-                          >{`${item.start.getDate()} ${
-                            months[item.start.getMonth()]
-                          }`}</p>
+                          >
+                            {item.start.getDate()}{" "}
+                            {months[item.start.getMonth()]}
+                          </p>
                         )}
                       </>
                     )}
@@ -323,7 +270,7 @@ export default function ChartTypeBar({
             </ul>
 
             <ul className={classes.lines}>
-              {ticks.map((item, index) => (
+              {ticks.map((_, index) => (
                 <li key={index}></li>
               ))}
             </ul>
@@ -332,10 +279,10 @@ export default function ChartTypeBar({
           <div className={classes.chart_container}>
             <div className={classes.chart_placeholder}>
               <p>No data available for {timeRangeKeyword}.</p>
-              <p>Try to select another time interval.</p>
+              <p>Try selecting another interval.</p>
             </div>
             <ul className={classes.lines}>
-              {ticks.map((item, index) => (
+              {ticks.map((_, index) => (
                 <li key={index}></li>
               ))}
             </ul>

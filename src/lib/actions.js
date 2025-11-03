@@ -1,8 +1,11 @@
 "use server";
 
-
 export async function fetchLatestPriceData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    ? process.env.NEXT_PUBLIC_BASE_URL
+    : "http://localhost:3000";
+  console.log(baseUrl);
+
   try {
     const res = await fetch(`${baseUrl}/api/porssisahko`, {
       cache: "no-cache",
@@ -32,7 +35,10 @@ export async function fetchFingridData(
   sortOrder,
   revalidate
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    ? process.env.NEXT_PUBLIC_BASE_URL
+    : "http://localhost:3000";
+  console.log(baseUrl);
 
   const params = new URLSearchParams({
     datasetId: datasetId, // 245

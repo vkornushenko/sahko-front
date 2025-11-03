@@ -60,6 +60,7 @@ export async function GET(request) {
         next: { revalidate: revalidate }, // revalidate every in seconds
         headers: {
           "x-api-key": process.env.FINGRID_PRIMARY_API_KEY,
+          "User-Agent": "SahkoApp/1.0 (vercel; vkornushenko@gmail.com)"
         },
       }
     );

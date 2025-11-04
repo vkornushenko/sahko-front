@@ -98,18 +98,18 @@ export default async function Home() {
   const missingData = await fetchMissingPrices(prices[prices.length - 1]);
   const fullPriceData = mergePrices(prices, missingData);
 
-  // Step 3. Fetch Fingrid data
-  const fingridDataWind = await fetchFingridData(
-    245,
-    now.toISOString(),
-    (60 / 15) * 24 * 4, // 4 days
-    "asc",
-    15 * 60 // 15 minutes in seconds
-  );
+  // // Step 3. Fetch Fingrid data
+  // const fingridDataWind = await fetchFingridData(
+  //   245,
+  //   now.toISOString(),
+  //   (60 / 15) * 24 * 4, // 4 days
+  //   "asc",
+  //   15 * 60 // 15 minutes in seconds
+  // );
 
   // Step 4. Prepare chart data
   const marketElectricityPricesChart = mapToChartData(fullPriceData);
-  const windPowerGenForecastChart = mapFingridDataToChart(fingridDataWind);
+  // const windPowerGenForecastChart = mapFingridDataToChart(fingridDataWind);
 
   return (
     <main>
@@ -125,7 +125,7 @@ export default async function Home() {
         />
       )}
 
-      {windPowerGenForecastChart.length > 0 && (
+      {/* {windPowerGenForecastChart.length > 0 && (
         <ChartTypeBar
           data={windPowerGenForecastChart}
           units={["MW", "%"]}
@@ -136,7 +136,7 @@ export default async function Home() {
           defaulTimeRangeKeyword="3 days ahead"
           timeRangeKeywords={["yesterday", "today", "tomorrow", "3 days ahead"]}
         />
-      )}
+      )} */}
     </main>
   );
 }

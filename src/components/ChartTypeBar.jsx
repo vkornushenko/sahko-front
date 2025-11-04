@@ -235,6 +235,13 @@ export default function ChartTypeBar({
                   title={`${chartValues} = ${item.value} ${unitsState}\n${item.barTitleReadable}`}
                 >
                   <div
+                    className={classes.info}
+                    style={{ left: `${-offset + 10}px` }}
+                  >
+                    {item.value} {units}<br />
+                    {item.barTitleReadable}
+                  </div>
+                  <div
                     className={classes.bar}
                     style={{ height: (200 / maxYaxisVal) * item.value }}
                   >
@@ -278,8 +285,10 @@ export default function ChartTypeBar({
         ) : (
           <div className={classes.chart_container}>
             <div className={classes.chart_placeholder}>
-              <p>No data available for {timeRangeKeyword}.</p>
-              <p>Try selecting another interval.</p>
+              <p>
+                No data available for {timeRangeKeyword}. Try to select another
+                time interval.
+              </p>
             </div>
             <ul className={classes.lines}>
               {ticks.map((_, index) => (

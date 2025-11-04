@@ -85,6 +85,19 @@
 .bars li:hover {
   background-color: #333333;
 }
+.bars li > .info{
+  position: absolute;
+  z-index: 500;
+  top: 10px;
+  /* left: 10px; */
+  padding: 4px;
+  display: none;
+}
+.bars li:hover > .info{
+  display: block;
+  border-radius: 2px;
+  background-color: rgb(81, 0, 128);
+}
 .bars li:hover div {
   background-color: #ffb300;
 }
@@ -194,4 +207,9 @@
   align-items: center;
   background-color: #171717;
   cursor: auto;
+}
+
+.chart_placeholder p{
+  width: 215px;
+  text-align: center;
 }

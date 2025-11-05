@@ -243,7 +243,7 @@ export default function ChartTypeBar({
                   </div>
                   <div
                     className={classes.bar}
-                    style={{ height: (200 / maxYaxisVal) * item.value }}
+                    style={{ height: item.value < 0 ? 0 : (200 / maxYaxisVal) * item.value }}
                   >
                     {index % 4 === 0 && (
                       <>
